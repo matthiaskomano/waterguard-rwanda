@@ -5,7 +5,6 @@ import { Power, ShieldAlert, Cpu, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -68,21 +67,21 @@ export default function AutomationPage() {
               <Label className="text-sm font-semibold">Instant Leak Shut-off</Label>
               <p className="text-[11px] text-muted-foreground">Close valve immediately on leak trigger.</p>
             </div>
-            <Switch defaultChecked />
+            <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" />
           </div>
           <div className="flex items-center justify-between p-3 rounded-lg border bg-white dark:bg-slate-900">
             <div className="space-y-0.5">
               <Label className="text-sm font-semibold">Telegram Alert Dispatch</Label>
               <p className="text-[11px] text-muted-foreground">Send webhook alert to admin mobile.</p>
             </div>
-            <Switch defaultChecked />
+            <input type="checkbox" defaultChecked className="h-4 w-4 rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" />
           </div>
           <div className="flex items-center justify-between p-3 rounded-lg border bg-white dark:bg-slate-900">
             <div className="space-y-0.5">
               <Label className="text-sm font-semibold">High Pressure Venting</Label>
               <p className="text-[11px] text-muted-foreground">Trigger relief if pipe pressure exceeds 6 bar.</p>
             </div>
-            <Switch />
+            <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" />
           </div>
         </CardContent>
       </Card>
@@ -118,9 +117,11 @@ export default function AutomationPage() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Switch 
+                      <input 
+                        type="checkbox" 
                         checked={valve.autoShutoff} 
-                        onCheckedChange={() => toggleAuto(valve.id)} 
+                        onChange={() => toggleAuto(valve.id)}
+                        className="h-4 w-4 rounded border-slate-300 text-secondary focus:ring-secondary cursor-pointer" 
                       />
                       <span className="text-xs text-muted-foreground">{valve.autoShutoff ? "Active" : "Disabled"}</span>
                     </div>

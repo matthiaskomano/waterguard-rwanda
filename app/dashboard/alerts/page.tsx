@@ -1,12 +1,18 @@
+
 import { Suspense } from "react";
 import AlertsClient from "./alerts-client";
-import { headers } from "next/headers";
 
-export default async function AlertsPage() {
-  await headers();
-  
+export const instant = false;
+
+export default function AlertsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Loading alerts...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-muted-foreground">
+          Loading alerts...
+        </div>
+      }
+    >
       <AlertsClient />
     </Suspense>
   );

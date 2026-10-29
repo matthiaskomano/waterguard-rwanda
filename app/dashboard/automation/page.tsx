@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Power, ShieldAlert, Cpu, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-export default function AutomationPage() {
+export const instant = false; // Tells Next.js to allow blocking/dynamic route rendering
+
+function AutomationContent() {
   const [valves, setValves] = useState([
     { id: "WG-001", property: "Main House", status: "Open", autoShutoff: true, signal: "Strong (-65 dBm)" },
     { id: "WG-002", property: "Office", status: "Open", autoShutoff: true, signal: "Good (-70 dBm)" },
@@ -143,5 +145,13 @@ export default function AutomationPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function AutomationPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Loading automation controls...</div>}>
+      <AutomationContent />
+    </Suspense>
   );
 }

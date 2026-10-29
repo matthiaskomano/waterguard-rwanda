@@ -1,14 +1,14 @@
-import { Building2 } from "lucide-react";
+import { Building2, MapPin } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { connection } from "next/server";
+import { headers } from "next/headers";
 import { getProperties } from "./actions";
 import { AddPropertyDialog } from "./add-property-dialog";
 
 export default async function PropertiesPage() {
-  // FIX: Explicitly opts into dynamic rendering for the new Next.js cache engine
-  await connection();
+  // Opts into dynamic rendering safely for Next.js 16
+  await headers();
   
   // Fetch real data from Supabase
   const properties = await getProperties();
@@ -42,6 +42,7 @@ export default async function PropertiesPage() {
                   <TableHead>Property Name</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Location</TableHead>
+                  <TableHead>Coordinates (Lat, Lng)</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -54,6 +55,16 @@ export default async function PropertiesPage() {
                     </TableCell>
                     <TableCell>{property.property_type}</TableCell>
                     <TableCell>{property.location}</TableCell>
+                    <TableCell>
+                      {property.latitude && property.longitude ? (
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          {Number(property.latitude).toFixed(4)}, {Number(property.longitude).toFixed(4)}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic">Not set</span>
+                      )}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={property.status === "Healthy" ? "default" : "destructive"} 
                              className={property.status === "Healthy" ? "bg-success hover:bg-success/80" : ""}>

@@ -1,3 +1,8 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -101,6 +106,23 @@ const impactItems = [
 ];
 
 export default function LandingPage() {
+  const router = useRouter();
+  
+  useEffect(() => {
+    const supabase = createClient();
+    
+    // Listen for the moment the user is signed in via the email hash link
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) {
+        router.push("/update-password");
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [router]);
+
   return (
     <div className="flex w-full min-w-0 flex-col items-center overflow-x-clip">
       {/* 1. HERO SECTION */}

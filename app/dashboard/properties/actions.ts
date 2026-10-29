@@ -31,11 +31,23 @@ export async function createProperty(formData: FormData) {
 
   if (!orgs) return { error: "No organization found." }
 
+  // Extract map coordinates if they were provided
+  const latStr = formData.get('latitude') as string | null;
+  const lngStr = formData.get('longitude') as string | null;
+  const latitude = latStr ? parseFloat(latStr) : null;
+  const longitude = lngStr ? parseFloat(lngStr) : null;
+
+  // Extract the newly added owner ID
+  const owner_id = formData.get('owner_id') as string | null;
+
   const newProperty = {
     organization_id: orgs.organization_id,
     name: formData.get('name') as string,
     property_type: formData.get('type') as string,
     location: formData.get('location') as string,
+    latitude: latitude,
+    longitude: longitude,
+    owner_id: owner_id || null, // Assign to the client if provided
     status: 'Healthy'
   }
 

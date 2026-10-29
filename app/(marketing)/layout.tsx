@@ -62,7 +62,7 @@ export default function MarketingLayout({
             ))}
           </nav>
 
-          {/* Desktop Sign In and Mobile Menu Toggle */}
+          {/* Sign In and Mobile Menu Toggle */}
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             <Link href="/login" className="hidden sm:inline-flex">
               <Button className="rounded-full bg-secondary px-5 text-white shadow-sm hover:bg-secondary/90">
@@ -76,7 +76,11 @@ export default function MarketingLayout({
               size="icon"
               className="h-10 w-10 shrink-0 lg:hidden"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+              aria-label={
+                mobileMenuOpen
+                  ? "Close navigation menu"
+                  : "Open navigation menu"
+              }
               aria-expanded={mobileMenuOpen}
               aria-controls="mobile-navigation"
             >
@@ -89,7 +93,7 @@ export default function MarketingLayout({
           </div>
         </div>
 
-        {/* Mobile Navigation Panel */}
+        {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div
             id="mobile-navigation"
@@ -157,9 +161,7 @@ export default function MarketingLayout({
       </header>
 
       {/* Public Page Content */}
-      <main className="min-w-0 w-full flex-1">
-        {children}
-      </main>
+      <main className="min-w-0 w-full flex-1">{children}</main>
 
       {/* Footer */}
       <footer className="w-full border-t bg-muted/20 pb-8 pt-12 sm:pt-16">
@@ -185,8 +187,8 @@ export default function MarketingLayout({
                 build a sustainable future.
               </p>
 
+              {/* Social Links */}
               <div className="flex items-center gap-4">
-                {/* X / Twitter */}
                 <a
                   href="https://x.com/"
                   target="_blank"
@@ -203,7 +205,6 @@ export default function MarketingLayout({
                   </svg>
                 </a>
 
-                {/* LinkedIn */}
                 <a
                   href="https://www.linkedin.com/"
                   target="_blank"
@@ -220,7 +221,6 @@ export default function MarketingLayout({
                   </svg>
                 </a>
 
-                {/* GitHub */}
                 <a
                   href="https://github.com/"
                   target="_blank"
@@ -244,22 +244,34 @@ export default function MarketingLayout({
               <h4 className="mb-4 font-semibold text-primary">Product</h4>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li>
-                  <Link href="/features" className="break-words transition-colors hover:text-secondary">
+                  <Link
+                    href="/features"
+                    className="break-words transition-colors hover:text-secondary"
+                  >
                     Features
                   </Link>
                 </li>
                 <li>
-                  <Link href="/how-it-works" className="break-words transition-colors hover:text-secondary">
+                  <Link
+                    href="/how-it-works"
+                    className="break-words transition-colors hover:text-secondary"
+                  >
                     How It Works
                   </Link>
                 </li>
                 <li>
-                  <Link href="/solutions" className="transition-colors hover:text-secondary">
+                  <Link
+                    href="/solutions"
+                    className="transition-colors hover:text-secondary"
+                  >
                     Solutions
                   </Link>
                 </li>
                 <li>
-                  <Link href="/hardware" className="transition-colors hover:text-secondary">
+                  <Link
+                    href="/hardware"
+                    className="transition-colors hover:text-secondary"
+                  >
                     ESP32 Hardware
                   </Link>
                 </li>
@@ -271,22 +283,34 @@ export default function MarketingLayout({
               <h4 className="mb-4 font-semibold text-primary">Company</h4>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li>
-                  <Link href="/about" className="transition-colors hover:text-secondary">
+                  <Link
+                    href="/about"
+                    className="transition-colors hover:text-secondary"
+                  >
                     About Us
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="transition-colors hover:text-secondary">
+                  <Link
+                    href="/contact"
+                    className="transition-colors hover:text-secondary"
+                  >
                     Contact
                   </Link>
                 </li>
                 <li>
-                  <Link href="/careers" className="transition-colors hover:text-secondary">
+                  <Link
+                    href="/careers"
+                    className="transition-colors hover:text-secondary"
+                  >
                     Careers
                   </Link>
                 </li>
                 <li>
-                  <Link href="/blog" className="transition-colors hover:text-secondary">
+                  <Link
+                    href="/blog"
+                    className="transition-colors hover:text-secondary"
+                  >
                     Blog
                   </Link>
                 </li>
@@ -298,17 +322,26 @@ export default function MarketingLayout({
               <h4 className="mb-4 font-semibold text-primary">Legal</h4>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li>
-                  <Link href="/privacy" className="transition-colors hover:text-secondary">
+                  <Link
+                    href="/privacy"
+                    className="transition-colors hover:text-secondary"
+                  >
                     Privacy Policy
                   </Link>
                 </li>
                 <li>
-                  <Link href="/terms" className="transition-colors hover:text-secondary">
+                  <Link
+                    href="/terms"
+                    className="transition-colors hover:text-secondary"
+                  >
                     Terms of Service
                   </Link>
                 </li>
                 <li>
-                  <Link href="/cookies" className="transition-colors hover:text-secondary">
+                  <Link
+                    href="/cookies"
+                    className="transition-colors hover:text-secondary"
+                  >
                     Cookie Policy
                   </Link>
                 </li>
@@ -319,7 +352,7 @@ export default function MarketingLayout({
           {/* Footer Bottom Bar */}
           <div className="flex flex-col items-start gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between sm:pt-8">
             <p className="text-xs leading-5 text-muted-foreground">
-              © {new Date().getFullYear()} Impact Tech Solutions Ltd. All rights reserved.
+              © 2026 Impact Tech Solutions Ltd. All rights reserved.
             </p>
 
             <a

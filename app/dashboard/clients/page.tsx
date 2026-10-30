@@ -9,6 +9,7 @@ export default function AdminClientsPage() {
   const [clients, setClients] = useState<any[]>([]);
   const [properties, setProperties] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,20 +26,24 @@ export default function AdminClientsPage() {
 
   const fetchData = async () => {
     setIsLoading(true);
+    setFetchError(null);
     
-    // Fetch properties to see which ones are available and which are assigned
+    // 1. Fetch properties
     const { data: propertiesData } = await supabase
       .from("properties")
       .select("*")
       .order("created_at", { ascending: false });
 
-    // Note: Supabase restricts frontend access to auth.users. 
-    // This assumes you have a public 'profiles' table that syncs with auth.users.
-    // If you store user roles in a 'profiles' table, fetch them here:
-    const { data: clientsData } = await supabase
+    // 2. Fetch clients from the public profiles table
+    // (Removed the role filter so it grabs everyone for now)
+    const { data: clientsData, error: clientsError } = await supabase
       .from("profiles")
-      .select("*")
-      .eq("role", "client"); // Adjust based on your actual role column setup
+      .select("*"); 
+
+    if (clientsError) {
+      console.error("Error fetching clients:", clientsError);
+      setFetchError(clientsError.message);
+    }
 
     setProperties(propertiesData || []);
     setClients(clientsData || []);
@@ -64,7 +69,7 @@ export default function AdminClientsPage() {
 
     if (!error) {
       setSuccessMessage("Property successfully assigned!");
-      fetchData(); // Refresh the data
+      fetchData(); // Refresh the data to show the new assignment
       setTimeout(() => {
         setIsModalOpen(false);
         setSuccessMessage("");
@@ -91,6 +96,13 @@ export default function AdminClientsPage() {
         </Button>
       </div>
 
+      {fetchError && (
+        <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm">
+          <strong>Database Error:</strong> {fetchError} <br/>
+          <em>(You likely need to create a "profiles" table in your Supabase database that links to auth.users)</em>
+        </div>
+      )}
+
       {/* Clients Table */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
         <table className="w-full text-sm text-left">
@@ -106,7 +118,7 @@ export default function AdminClientsPage() {
             {clients.length === 0 ? (
               <tr>
                 <td colSpan={4} className="px-6 py-8 text-center text-slate-500">
-                  No clients found. Ensure your auth users are syncing to a profiles table.
+                  No clients found in the profiles table. 
                 </td>
               </tr>
             ) : clients.map((client) => {
@@ -115,7 +127,7 @@ export default function AdminClientsPage() {
               return (
                 <tr key={client.id} className="hover:bg-slate-50">
                   <td className="px-6 py-4">
-                    <div className="font-bold text-slate-900">{client.full_name || "Unnamed Client"}</div>
+                    <div className="font-bold text-slate-900">{client.full_name || client.name || "Unnamed Client"}</div>
                     <div className="text-slate-500 flex items-center mt-1">
                       <Mail className="h-3 w-3 mr-1" /> {client.email}
                     </div>
@@ -124,7 +136,7 @@ export default function AdminClientsPage() {
                     {clientProperties.length > 0 ? (
                       <div className="flex flex-col gap-1">
                         {clientProperties.map(p => (
-                          <span key={p.id} className="inline-flex items-center text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded-md">
+                          <span key={p.id} className="inline-flex items-center text-xs font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded-md w-fit">
                             <Building className="h-3 w-3 mr-1" /> {p.name}
                           </span>
                         ))}
@@ -177,7 +189,7 @@ export default function AdminClientsPage() {
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Assigning to:</label>
                     <div className="p-3 bg-slate-50 rounded-lg text-sm font-medium text-slate-900 border border-slate-200">
-                      {selectedClient?.full_name || selectedClient?.email}
+                      {selectedClient?.full_name || selectedClient?.name || selectedClient?.email}
                     </div>
                   </div>
 

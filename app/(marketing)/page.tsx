@@ -112,8 +112,9 @@ export default function LandingPage() {
     const supabase = createClient();
     
     // Check if the URL contains an access token or type=invite right away
+    // We pass the hash token ALONG to the update-password page so Supabase can read it
     if (window.location.hash.includes("access_token") || window.location.hash.includes("type=invite")) {
-      router.push("/update-password");
+      router.push("/update-password" + window.location.hash);
       return;
     }
 

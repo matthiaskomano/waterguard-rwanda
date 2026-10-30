@@ -44,6 +44,7 @@ export const instant = false;
 const sidebarLinks = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { name: "Properties", href: "/dashboard/properties", icon: Building2 },
+  { name: "Clients", href: "/dashboard/clients", icon: Users }, // <-- Added Clients Link here
   { name: "Devices", href: "/dashboard/devices", icon: Cpu },
   { name: "Live Monitoring", href: "/dashboard/monitoring", icon: Activity },
   { name: "Alerts", href: "/dashboard/alerts", icon: AlertTriangle, badge: "3" },

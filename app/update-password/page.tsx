@@ -14,9 +14,10 @@ export default function UpdatePasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSessionReady, setIsSessionReady] = useState(false);
   const router = useRouter();
-  const supabase = createClient();
 
   useEffect(() => {
+    const supabase = createClient();
+    
     // 1. Check if the session is already active
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setIsSessionReady(true);
@@ -26,18 +27,29 @@ export default function UpdatePasswordPage() {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) setIsSessionReady(true);
     });
+    
+    // 3. Failsafe: If session doesn't load after 2.5 seconds, the link is expired
+    const timeout = setTimeout(() => {
+      setIsSessionReady(true);
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (!session) {
+          setError("This invitation link has expired or was already used. Please request a new invite.");
+        }
+      });
+    }, 2500);
 
     return () => {
       authListener.subscription.unsubscribe();
+      clearTimeout(timeout);
     };
-  }, [supabase.auth]);
+  }, []);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsPending(true);
     setError(null);
+    const supabase = createClient();
 
-    // Supabase knows which user to update because the invite link established a secure session
     const { error } = await supabase.auth.updateUser({
       password: password
     });
@@ -46,12 +58,10 @@ export default function UpdatePasswordPage() {
       setError(error.message);
       setIsPending(false);
     } else {
-      // Password set successfully, send them straight to their restricted dashboard!
       router.push("/dashboard");
     }
   };
 
-  // Block the form from rendering until Supabase confirms the user's session is locked in
   if (!isSessionReady) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">
@@ -62,6 +72,8 @@ export default function UpdatePasswordPage() {
       </div>
     );
   }
+
+  const isExpired = error?.includes("expired");
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">
@@ -89,14 +101,14 @@ export default function UpdatePasswordPage() {
               id="password" 
               type="password" 
               required 
-              disabled={isPending}
+              disabled={isPending || isExpired}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Min 6 characters..."
             />
           </div>
           
-          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isPending}>
+          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white" disabled={isPending || isExpired}>
             {isPending ? "Saving..." : "Set Password & Continue"}
           </Button>
         </form>

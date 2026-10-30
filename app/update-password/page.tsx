@@ -1,19 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Lock } from "lucide-react";
+import { Lock, Loader2 } from "lucide-react";
 
 export default function UpdatePasswordPage() {
   const [password, setPassword] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSessionReady, setIsSessionReady] = useState(false);
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    // 1. Check if the session is already active
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setIsSessionReady(true);
+    });
+
+    // 2. Listen for the exact moment Supabase finishes processing the hash token
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) setIsSessionReady(true);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [supabase.auth]);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,6 +50,18 @@ export default function UpdatePasswordPage() {
       router.push("/dashboard");
     }
   };
+
+  // Block the form from rendering until Supabase confirms the user's session is locked in
+  if (!isSessionReady) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <p className="text-sm font-medium text-slate-600">Verifying secure invite link...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">

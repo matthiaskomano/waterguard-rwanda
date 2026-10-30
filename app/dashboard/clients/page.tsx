@@ -35,7 +35,6 @@ export default function AdminClientsPage() {
       .order("created_at", { ascending: false });
 
     // 2. Fetch clients from the public profiles table
-    // (Removed the role filter so it grabs everyone for now)
     const { data: clientsData, error: clientsError } = await supabase
       .from("profiles")
       .select("*"); 
@@ -52,6 +51,7 @@ export default function AdminClientsPage() {
 
   const openAssignModal = (client: any) => {
     setSelectedClient(client);
+    setSelectedPropertyId("");
     setSuccessMessage("");
     setIsModalOpen(true);
   };
@@ -69,11 +69,13 @@ export default function AdminClientsPage() {
 
     if (!error) {
       setSuccessMessage("Property successfully assigned!");
-      fetchData(); // Refresh the data to show the new assignment
+      fetchData(); // Refresh data
       setTimeout(() => {
         setIsModalOpen(false);
         setSuccessMessage("");
       }, 2000);
+    } else {
+      console.error("Assignment error:", error.message);
     }
     
     setIsAssigning(false);
@@ -98,8 +100,7 @@ export default function AdminClientsPage() {
 
       {fetchError && (
         <div className="p-4 bg-red-50 text-red-700 border border-red-200 rounded-lg text-sm">
-          <strong>Database Error:</strong> {fetchError} <br/>
-          <em>(You likely need to create a "profiles" table in your Supabase database that links to auth.users)</em>
+          <strong>Database Error:</strong> {fetchError}
         </div>
       )}
 
@@ -170,16 +171,16 @@ export default function AdminClientsPage() {
 
       {/* Assignment Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md border border-slate-200 overflow-hidden">
-            <div className="flex justify-between items-center p-5 border-b border-slate-100">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md border border-slate-200 flex flex-col overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b border-slate-100">
               <h3 className="font-bold text-lg text-slate-900">Assign Property</h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600">
                 <X className="h-5 w-5" />
               </button>
             </div>
             
-            <form onSubmit={handleAssignProperty} className="p-5 space-y-4">
+            <form onSubmit={handleAssignProperty} className="p-6 space-y-5 flex-1">
               {successMessage ? (
                 <div className="p-4 bg-green-50 text-green-700 rounded-lg text-sm font-medium flex items-center">
                   {successMessage}
@@ -187,17 +188,17 @@ export default function AdminClientsPage() {
               ) : (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Assigning to:</label>
-                    <div className="p-3 bg-slate-50 rounded-lg text-sm font-medium text-slate-900 border border-slate-200">
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Assigning to:</label>
+                    <div className="p-3 bg-slate-50 rounded-lg text-sm font-semibold text-slate-900 border border-slate-200">
                       {selectedClient?.full_name || selectedClient?.name || selectedClient?.email}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Select Property</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Select Property</label>
                     <select 
                       required
-                      className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                      className="w-full border border-slate-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white"
                       value={selectedPropertyId}
                       onChange={(e) => setSelectedPropertyId(e.target.value)}
                     >
@@ -210,7 +211,7 @@ export default function AdminClientsPage() {
                     </select>
                   </div>
 
-                  <div className="pt-2 flex gap-3">
+                  <div className="pt-4 flex gap-3 border-t border-slate-100">
                     <Button type="button" variant="outline" className="w-full" onClick={() => setIsModalOpen(false)}>
                       Cancel
                     </Button>

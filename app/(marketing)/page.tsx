@@ -111,9 +111,15 @@ export default function LandingPage() {
   useEffect(() => {
     const supabase = createClient();
     
-    // Listen for the moment the user is signed in via the email hash link
+    // Check if the URL contains an access token or type=invite right away
+    if (window.location.hash.includes("access_token") || window.location.hash.includes("type=invite")) {
+      router.push("/update-password");
+      return;
+    }
+
+    // Also listen for auth state changes
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN" && session) {
+      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
         router.push("/update-password");
       }
     });

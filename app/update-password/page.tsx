@@ -14,48 +14,56 @@ export default function UpdatePasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSessionReady, setIsSessionReady] = useState(false);
   const router = useRouter();
+  const supabase = createClient();
 
   useEffect(() => {
-    const supabase = createClient();
-    
-    // 1. Check if the session is already active
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) setIsSessionReady(true);
-    });
+    const setupSession = async () => {
+      // 1. Manually extract the security tokens from the URL hash
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
 
-    // 2. Listen for the exact moment Supabase finishes processing the hash token
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) setIsSessionReady(true);
-    });
-    
-    // 3. Failsafe: If session doesn't load after 2.5 seconds, the link is expired
-    const timeout = setTimeout(() => {
-      setIsSessionReady(true);
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (!session) {
-          setError("This invitation link has expired or was already used. Please request a new invite.");
+      if (accessToken && refreshToken) {
+        // 2. Force Supabase to establish the session immediately
+        const { error: sessionError } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (sessionError) {
+          setError("This invitation link has expired or is invalid. Please request a new one.");
         }
-      });
-    }, 2500);
-
-    return () => {
-      authListener.subscription.unsubscribe();
-      clearTimeout(timeout);
+        
+        // Clean up the URL to hide the long tokens from the user
+        window.history.replaceState(null, "", "/update-password");
+        setIsSessionReady(true);
+      } else {
+        // 3. Fallback check just in case they are already fully logged in
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setIsSessionReady(true);
+        } else {
+          setError("This invitation link has expired or was already used. Please request a new invite.");
+          setIsSessionReady(true);
+        }
+      }
     };
-  }, []);
+
+    setupSession();
+  }, [supabase.auth]);
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsPending(true);
     setError(null);
-    const supabase = createClient();
 
-    const { error } = await supabase.auth.updateUser({
+    const { error: updateError } = await supabase.auth.updateUser({
       password: password
     });
 
-    if (error) {
-      setError(error.message);
+    if (updateError) {
+      setError(updateError.message);
       setIsPending(false);
     } else {
       router.push("/dashboard");
@@ -73,7 +81,7 @@ export default function UpdatePasswordPage() {
     );
   }
 
-  const isExpired = error?.includes("expired");
+  const isExpired = error !== null;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 p-4">

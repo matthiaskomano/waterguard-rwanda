@@ -66,7 +66,7 @@ export default function UpdatePasswordPage() {
       setError(updateError.message);
       setIsPending(false);
     } else {
-      router.push("/dashboard");
+      router.push("/client-dashboard");
     }
   };
 

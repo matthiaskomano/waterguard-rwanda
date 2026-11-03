@@ -4,7 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { connection } from "next/server";
 import { getProperties } from "./actions";
-import { AddPropertyDialog } from "./add-property-dialog";
+import AddPropertyDialog from "./add-property-dialog"; // Removed curly braces for default export
 
 // Allow blocking route for Next.js dynamic IO
 export const instant = false;

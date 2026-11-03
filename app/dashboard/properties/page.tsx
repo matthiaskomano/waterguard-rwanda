@@ -2,13 +2,16 @@ import { Building2, MapPin } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { headers } from "next/headers";
+import { connection } from "next/server";
 import { getProperties } from "./actions";
 import { AddPropertyDialog } from "./add-property-dialog";
 
+// ADDED: Disable instant loading to allow dynamic IO
+export const instant = false;
+
 export default async function PropertiesPage() {
-  // Opts into dynamic rendering safely for Next.js 16
-  await headers();
+  // Opts into dynamic rendering safely for Next.js 15+
+  await connection();
   
   // Fetch real data from Supabase
   const properties = await getProperties();

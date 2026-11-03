@@ -3,15 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { connection } from "next/server"; // ADDED: Import connection
+import { connection } from "next/server";
 import { getDevices, getPropertiesForDropdown } from "./actions";
 import { AddDeviceDialog } from "./add-device-dialog";
 
-// ADDED: Disable instant loading to allow dynamic IO
 export const instant = false;
 
 export default async function DevicesPage() {
-  // ADDED: Opt into dynamic rendering safely for Next.js 15+
   await connection();
 
   const devices = await getDevices();
@@ -73,7 +71,7 @@ export default async function DevicesPage() {
                         {device.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>{device.battery}</TableCell>
+                    <TableCell>{device.battery || "N/A"}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm">Details</Button>
                     </TableCell>

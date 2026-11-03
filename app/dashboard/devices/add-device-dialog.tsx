@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -28,11 +28,11 @@ export function AddDeviceDialog({ properties }: { properties: any[] }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      {/* @ts-ignore */}
-      <DialogTrigger asChild>
-        <Button className="bg-secondary text-white hover:bg-secondary/90">
-          <Plus className="mr-2 h-4 w-4" /> Register Device
-        </Button>
+      {/* FIX: Removed nested <Button> and used buttonVariants directly on DialogTrigger */}
+      <DialogTrigger 
+        className={buttonVariants({ variant: "default", className: "bg-secondary text-white hover:bg-secondary/90 cursor-pointer" })}
+      >
+        <Plus className="mr-2 h-4 w-4" /> Register Device
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

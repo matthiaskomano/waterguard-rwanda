@@ -49,10 +49,10 @@ const sidebarLinks = [
   { name: "Clients", href: "/dashboard/clients", icon: Users },
   { name: "Devices", href: "/dashboard/devices", icon: Cpu },
   { name: "Live Monitoring", href: "/dashboard/monitoring", icon: Activity },
-  { name: "Alerts", href: "/dashboard/alerts", icon: AlertTriangle, badge: "3" },
+  { name: "Alerts", href: "/dashboard/alerts", icon: AlertTriangle },
   { name: "Consumption", href: "/dashboard/consumption", icon: Droplet },
   { name: "Automation", href: "/dashboard/automation", icon: Power },
-  { name: "Notifications", href: "/dashboard/notifications", icon: Bell, badge: "3" },
+  { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
   { name: "Maintenance", href: "/dashboard/maintenance", icon: Wrench },
   { name: "Reports", href: "/dashboard/reports", icon: FileBarChart },
   { name: "Team", href: "/dashboard/team", icon: Users },
@@ -122,11 +122,6 @@ export default async function DashboardLayout({
                     <link.icon className="h-4 w-4 text-slate-400 transition-colors group-hover:text-cyan-400" />
                     <span>{link.name}</span>
                   </div>
-                  {link.badge && (
-                    <span className="rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
-                      {link.badge}
-                    </span>
-                  )}
                 </Link>
               </li>
             ))}

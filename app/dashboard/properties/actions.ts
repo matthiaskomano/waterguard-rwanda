@@ -1,63 +1,138 @@
-'use server'
 
-import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { revalidatePath } from "next/cache";
 
 export async function getProperties() {
-  const supabase = await createClient()
-  
+  const supabase = await createClient();
+
   const { data, error } = await supabase
-    .from('properties')
-    .select('*')
-    .order('created_at', { ascending: false })
+    .from("properties")
+    .select("*")
+    .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("❌ Error fetching properties:", error.message)
-    return []
+    console.error("Error fetching properties:", error.message);
+    return [];
   }
-  
-  // This will print in your VS Code terminal so you can see if Supabase is hiding the data
-  console.log(`✅ Fetched ${data?.length || 0} properties from Supabase.`);
-  
-  return data || []
+
+  console.log(
+    `Successfully fetched ${data?.length ?? 0} properties from Supabase.`
+  );
+
+  return data ?? [];
 }
 
 export async function createProperty(formData: FormData) {
-  const supabase = await createClient()
-  
-  // Get the user's first organization
-  const { data: orgs } = await supabase
-    .from('organization_members')
-    .select('organization_id')
-    .limit(1)
-    .single()
+  const supabase = await createClient();
 
-  if (!orgs) return { error: "No organization found." }
+  // Validate required fields
+  const name = String(formData.get("name") ?? "").trim();
+  const propertyType = String(
+    formData.get("property_type") ??
+    formData.get("type") ??
+    ""
+  ).trim();
+  const location = String(formData.get("location") ?? "").trim();
 
-  // Extract map coordinates if they were provided
-  const latStr = formData.get('latitude') as string | null;
-  const lngStr = formData.get('longitude') as string | null;
-  const latitude = latStr ? parseFloat(latStr) : null;
-  const longitude = lngStr ? parseFloat(lngStr) : null;
-
-  // Extract the newly added owner ID (Note: ensure your table uses 'owner_id' or 'client_id' consistently)
-  const owner_id = formData.get('owner_id') as string | null;
-
-  const newProperty = {
-    organization_id: orgs.organization_id,
-    name: formData.get('name') as string,
-    property_type: formData.get('type') as string,
-    location: formData.get('location') as string,
-    latitude: latitude,
-    longitude: longitude,
-    owner_id: owner_id || null, 
-    status: 'Healthy'
+  if (!name) {
+    return { error: "Property name is required." };
   }
 
-  const { error } = await supabase.from('properties').insert(newProperty)
+  if (!propertyType) {
+    return { error: "Please select a property type." };
+  }
 
-  if (error) return { error: error.message }
+  if (!location) {
+    return { error: "Property location is required." };
+  }
 
-  revalidatePath('/dashboard/properties')
-  return { success: true }
+  // Get the user's organization
+  const { data: membership, error: membershipError } = await supabase
+    .from("organization_members")
+    .select("organization_id")
+    .limit(1)
+    .single();
+
+  if (membershipError || !membership?.organization_id) {
+    console.error("Organization lookup error:", membershipError?.message);
+
+    return {
+      error: "No organization found. Please contact your administrator.",
+    };
+  }
+
+  // Extract and validate coordinates
+  const latValue = formData.get("latitude");
+  const lngValue = formData.get("longitude");
+
+  const latStr = String(latValue ?? "").trim();
+  const lngStr = String(lngValue ?? "").trim();
+
+  const latitude = latStr === "" ? null : Number(latStr);
+  const longitude = lngStr === "" ? null : Number(lngStr);
+
+  if (latitude !== null && !Number.isFinite(latitude)) {
+    return { error: "Please enter a valid latitude." };
+  }
+
+  if (longitude !== null && !Number.isFinite(longitude)) {
+    return { error: "Please enter a valid longitude." };
+  }
+
+  if (latitude !== null && (latitude < -90 || latitude > 90)) {
+    return {
+      error: "Latitude must be between -90 and 90.",
+    };
+  }
+
+  if (longitude !== null && (longitude < -180 || longitude > 180)) {
+    return {
+      error: "Longitude must be between -180 and 180.",
+    };
+  }
+
+  if (
+    (latitude === null && longitude !== null) ||
+    (latitude !== null && longitude === null)
+  ) {
+    return {
+      error: "Please provide both latitude and longitude.",
+    };
+  }
+
+  // Prepare property record
+  const newProperty = {
+    organization_id: membership.organization_id,
+    name,
+    property_type: propertyType,
+    location,
+    latitude,
+    longitude,
+    status: "Healthy",
+  };
+
+  // Save to Supabase
+  const { data, error } = await supabase
+    .from("properties")
+    .insert(newProperty)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Property creation error:", error.message);
+
+    return {
+      error: error.message,
+    };
+  }
+
+  // Refresh properties page
+  revalidatePath("/dashboard/properties");
+
+  return {
+    success: true,
+    property: data,
+  };
 }

@@ -16,6 +16,7 @@ import {
   LogOut,
   User,
 } from "lucide-react";
+import { connection } from "next/server";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,12 +40,13 @@ import { createClient } from "@/lib/supabase/server";
 import { logOut } from "./actions";
 import MobileNav from "./mobile-nav";
 
+// Allow blocking route for Next.js 15 dynamic IO
 export const instant = false;
 
 const sidebarLinks = [
   { name: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { name: "Properties", href: "/dashboard/properties", icon: Building2 },
-  { name: "Clients", href: "/dashboard/clients", icon: Users }, // <-- Added Clients Link here
+  { name: "Clients", href: "/dashboard/clients", icon: Users },
   { name: "Devices", href: "/dashboard/devices", icon: Cpu },
   { name: "Live Monitoring", href: "/dashboard/monitoring", icon: Activity },
   { name: "Alerts", href: "/dashboard/alerts", icon: AlertTriangle, badge: "3" },
@@ -62,6 +64,9 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Opt into dynamic rendering safely for Next.js 15
+  await connection();
+
   const supabase = await createClient();
   const {
     data: { user },

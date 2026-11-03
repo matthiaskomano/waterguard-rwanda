@@ -12,9 +12,12 @@ export async function getProperties() {
     .order('created_at', { ascending: false })
 
   if (error) {
-    console.error("Error fetching properties:", error.message)
+    console.error("❌ Error fetching properties:", error.message)
     return []
   }
+  
+  // This will print in your VS Code terminal so you can see if Supabase is hiding the data
+  console.log(`✅ Fetched ${data?.length || 0} properties from Supabase.`);
   
   return data || []
 }
@@ -37,7 +40,7 @@ export async function createProperty(formData: FormData) {
   const latitude = latStr ? parseFloat(latStr) : null;
   const longitude = lngStr ? parseFloat(lngStr) : null;
 
-  // Extract the newly added owner ID
+  // Extract the newly added owner ID (Note: ensure your table uses 'owner_id' or 'client_id' consistently)
   const owner_id = formData.get('owner_id') as string | null;
 
   const newProperty = {
@@ -47,7 +50,7 @@ export async function createProperty(formData: FormData) {
     location: formData.get('location') as string,
     latitude: latitude,
     longitude: longitude,
-    owner_id: owner_id || null, // Assign to the client if provided
+    owner_id: owner_id || null, 
     status: 'Healthy'
   }
 

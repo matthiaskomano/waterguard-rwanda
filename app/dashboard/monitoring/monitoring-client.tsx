@@ -8,15 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
-// Import map with SSR disabled
+// Import map with SSR disabled to prevent window errors
 const LiveMap = dynamic(() => import("./live-map"), {
   ssr: false,
   loading: () => <div className="h-full w-full bg-slate-100 animate-pulse rounded-xl border flex items-center justify-center text-muted-foreground">Loading Kigali Map...</div>
 });
 
 export default function LiveMonitoringClient() {
-  // ADDED: Mount state to prevent Turbopack/Leaflet hydration mismatch and container reuse errors
-  const [isMounted, setIsMounted] = useState(false);
   const [properties, setProperties] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [focusedProperty, setFocusedProperty] = useState<any | null>(null);
@@ -24,8 +22,6 @@ export default function LiveMonitoringClient() {
 
   // Fetch initial data and subscribe to real-time updates
   useEffect(() => {
-    setIsMounted(true); // Signal that it is safe to render Leaflet
-
     const fetchProperties = async () => {
       const { data } = await supabase.from('properties').select('*').order('name');
       if (data) setProperties(data);
@@ -175,12 +171,7 @@ export default function LiveMonitoringClient() {
             </div>
           </div>
           <div className="flex-1 rounded-lg overflow-hidden border">
-            {/* ADDED: Only render the map once the client has mounted */}
-            {isMounted ? (
-              <LiveMap properties={filteredProperties} focusedProperty={focusedProperty} />
-            ) : (
-              <div className="h-full w-full bg-slate-100 animate-pulse rounded-xl border flex items-center justify-center text-muted-foreground">Initializing Map...</div>
-            )}
+            <LiveMap properties={filteredProperties} focusedProperty={focusedProperty} />
           </div>
         </div>
 
